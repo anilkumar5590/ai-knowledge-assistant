@@ -1,11 +1,18 @@
 # AI Knowledge Assistant
 
+[![GitHub](https://img.shields.io/badge/github-anilkumar5590%2Fai--knowledge--assistant-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/anilkumar5590/ai-knowledge-assistant)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+
 A Retrieval-Augmented Generation (RAG) web app. Upload a PDF, DOCX or TXT file,
 ask a question in plain language, and get an answer that is grounded in your own
 document — with the exact source passages shown underneath.
 
 Everything runs **locally on your machine**. No document text ever leaves your
 computer, and no API key is required.
+
+**Repository:** <https://github.com/anilkumar5590/ai-knowledge-assistant>
 
 ---
 
@@ -22,6 +29,9 @@ computer, and no API key is required.
 - [Performance notes](#performance-notes)
 - [Troubleshooting](#troubleshooting)
 - [Security note](#security-note)
+- [Feedback](#feedback)
+- [Follow us](#follow-us)
+- [License](#license)
 
 ---
 
@@ -112,11 +122,14 @@ Two details worth knowing, because they are why the answers are trustworthy:
 
 ## Step-by-step setup
 
-### Step 1 — Get the code
+### Step 1 — Clone the repository
 
 ```bash
-cd "D:\Personal Projects\ai-knowledge-assistant"
+git clone https://github.com/anilkumar5590/ai-knowledge-assistant.git
+cd ai-knowledge-assistant
 ```
+
+> Already have the code? Just `cd` into the project folder and continue to Step 2.
 
 ### Step 2 — Create a virtual environment
 
@@ -499,3 +512,26 @@ Re-upload after restarting the server.
   shared or committed — rotate it rather than deleting the line.
 - Uploads are limited to `.pdf`, `.docx`, `.txt` by extension. If you accept
   files from untrusted users, add a content check and a file size limit.
+
+---
+
+## Feedback
+
+If you have any feedback, please reach out to us at
+[konathalaanilkumar143@gmail.com](mailto:konathalaanilkumar143@gmail.com).
+
+Found a bug or have a feature idea? Open an issue on GitHub:
+<https://github.com/anilkumar5590/ai-knowledge-assistant/issues>
+
+---
+
+## Follow us
+
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/anilkumarkonathala/)
+
+---
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE)
+file for details.
