@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Knowledge Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="static/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#129504;</text></svg>">
+</head>
+<body>
+
+    <div class="ambient" aria-hidden="true">
+        <span class="ambient__blob ambient__blob--one"></span>
+        <span class="ambient__blob ambient__blob--two"></span>
+        <span class="ambient__blob ambient__blob--three"></span>
+    </div>
+
+    <div class="app" id="app">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__header">
+                <div class="brand">
+                    <div class="brand__mark" aria-hidden="true">
+                        <span class="brand__glyph">A</span>
+                    </div>
+                    <div class="brand__text">
+                        <h1 class="brand__name">Knowledge Assistant</h1>
+                        <p class="brand__sub">RAG &middot; Qwen2.5 &middot; Qdrant</p>
+                    </div>
+                </div>
+                <button class="icon-button sidebar__close" id="sidebarClose" type="button" aria-label="Close sidebar">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+
+            <div class="sidebar__body">
+
+                <button class="new-chat" id="newChat" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                    <span>New conversation</span>
+                </button>
+
+                <div class="section section--history">
+                    <div class="section__head">
+                        <h2 class="section__title">History</h2>
+                        <button class="link-button" id="clearHistory" type="button">Clear all</button>
+                    </div>
+                    <ul class="history" id="historyList"></ul>
+                    <p class="history__empty" id="historyEmpty">No past conversations yet.</p>
+                </div>
+
+                <div class="section">
+                    <div class="section__head">
+                        <h2 class="section__title">Documents</h2>
+                        <span class="pill" id="docCount">0</span>
+                    </div>
+
+                    <div class="scoperow">
+                        <button class="link-button" id="selectAll" type="button">Select all</button>
+                        <span class="scoperow__divider" aria-hidden="true"></span>
+                        <button class="link-button" id="selectNone" type="button">Clear</button>
+                    </div>
+
+                    <div class="dropzone" id="dropzone" tabindex="0" role="button"
+                         aria-label="Upload documents. PDF, DOCX or TXT.">
+                        <div class="dropzone__inner">
+                            <div class="dropzone__icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5l5 5M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+                            </div>
+                            <p class="dropzone__title">Drop files or <span class="dropzone__link">browse</span></p>
+                            <p class="dropzone__hint">PDF, DOCX or TXT</p>
+                        </div>
+                        <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt" hidden>
+                    </div>
+
+                    <div class="upload-slot" id="uploadSlot" hidden>
+                        <div class="upload-slot__top">
+                            <span class="upload-slot__name" id="uploadName">file.pdf</span>
+                            <span class="upload-slot__pct" id="uploadPct">0%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress__bar progress__bar--indeterminate" id="uploadBar"></div>
+                        </div>
+                        <p class="upload-slot__status" id="uploadStatus">Uploading&hellip;</p>
+                    </div>
+
+                    <ul class="doclist" id="docList"></ul>
+
+                    <div class="doclist__empty" id="docListEmpty">
+                        <div class="skeleton-row"></div>
+                        <div class="skeleton-row"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar__footer">
+                <div class="status" id="status" data-state="connecting">
+                    <span class="status__dot" aria-hidden="true"></span>
+                    <span class="status__text" id="statusText">Connecting to model&hellip;</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="chat">
+            <header class="chat__header">
+                <button class="icon-button chat__menu" id="sidebarOpen" type="button" aria-label="Open sidebar">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                </button>
+                <div class="chat__title">
+                    <h2>Chat with your documents</h2>
+                    <p id="chatSubtitle">Ask anything &mdash; answers are grounded in your uploads</p>
+                </div>
+                <div class="chat__meta" id="chatMeta" hidden>
+                    <span class="chip" id="scopeChip">0 docs</span>
+                    <span class="chip chip--muted" id="timingChip"></span>
+                </div>
+            </header>
+
+            <div class="messages" id="messages" role="log" aria-live="polite" aria-label="Conversation"></div>
+
+            <section class="welcome" id="welcome">
+                <div class="welcome__orb" aria-hidden="true">
+                    <span class="welcome__ring welcome__ring--a"></span>
+                    <span class="welcome__ring welcome__ring--b"></span>
+                    <span class="welcome__core"></span>
+                </div>
+                <h2 class="welcome__title">How can I help you today?</h2>
+                <p class="welcome__sub">I answer strictly from the documents you upload. Nothing else.</p>
+                <div class="suggestions" id="suggestions">
+                    <button class="suggestion" type="button" data-prompt="Give me a short summary of the main topics in these documents.">
+                        <span class="suggestion__icon" aria-hidden="true">&#9788;</span>
+                        <span class="suggestion__text">Summarise the main topics</span>
+                    </button>
+                    <button class="suggestion" type="button" data-prompt="What are the key facts and figures mentioned in these documents?">
+                        <span class="suggestion__icon" aria-hidden="true">&#128202;</span>
+                        <span class="suggestion__text">List key facts &amp; figures</span>
+                    </button>
+                    <button class="suggestion" type="button" data-prompt="What questions can I ask about these documents?">
+                        <span class="suggestion__icon" aria-hidden="true">&#10067;</span>
+                        <span class="suggestion__text">What can I ask?</span>
+                    </button>
+                    <button class="suggestion" type="button" data-prompt="Find any dates, deadlines or important references in the documents.">
+                        <span class="suggestion__icon" aria-hidden="true">&#128197;</span>
+                        <span class="suggestion__text">Find dates &amp; deadlines</span>
+                    </button>
+                </div>
+            </section>
+
+            <div class="composer-wrap">
+                <div class="composer" id="composer">
+                    <button class="composer__attach" id="attachButton" type="button" aria-label="Attach documents">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5l-8.4 8.4a5 5 0 01-7.1-7.1l8.5-8.5a3.3 3.3 0 014.7 4.7l-8.5 8.5a1.7 1.7 0 01-2.4-2.4l7.8-7.8"/></svg>
+                    </button>
+                    <textarea id="input" class="composer__input" rows="1" placeholder="Ask a question about your documents…"
+                              aria-label="Message" autocomplete="off"></textarea>
+                    <button class="composer__send" id="send" type="button" aria-label="Send message" disabled>
+                        <!-- <svg class="send-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l16-8-6 8 6 8-16-8z"/></svg> -->
+                        <svg class="send-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M21.8 11.4L2.2 1.6c-.1-.1-.2-.1-.3-.1-.2 0-.3.1-.4.2-.1.1-.1.3-.1.5l2 8.3c0 .1.1.2.2.3l3.5 1.2-3.5 1.2c-.1 0-.2.2-.2.3l-2 8.3c0 .2 0 .3.1.5.1.1.3.2.4.2.1 0 .2 0 .3-.1l19.6-9.8c.1-.1.2-.2.2-.3.1-.3 0-.6-.2-.8zM4 19.4l1.2-5 7-2.4c.1 0 .1-.1.1-.2s0-.2-.1-.2l-7-2.4L4 4l14.8 7.4L4 19.4z"/>
+</svg>
+                        <svg class="stop-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" stroke="none"/></svg>
+                    </button>
+                </div>
+                <p class="composer__hint">
+                    <kbd>Enter</kbd> to send &middot; <kbd>Shift</kbd>+<kbd>Enter</kbd> for a new line &middot;
+                    answers come from your own documents
+                </p>
+            </div>
+
+            <button class="scroll-bottom" id="scrollBottom" type="button" aria-label="Scroll to latest message" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+        </main>
+    </div>
+
+    <div class="scrim" id="scrim" hidden></div>
+    <div class="toasts" id="toasts" aria-live="assertive"></div>
+
+    <template id="docTemplate">
+        <li class="doc" data-id="">
+            <label class="doc__check">
+                <input type="checkbox" class="doc__toggle" checked>
+                <span class="doc__box" aria-hidden="true"></span>
+            </label>
+            <span class="doc__icon" aria-hidden="true"></span>
+            <span class="doc__info">
+                <span class="doc__name"></span>
+                <span class="doc__meta"></span>
+            </span>
+            <button class="doc__delete" type="button" aria-label="Remove document">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10 11v5M14 11v5"/></svg>
+            </button>
+        </li>
+    </template>
+
+    <template id="historyTemplate">
+        <li class="history__item" data-id="">
+            <button class="history__open" type="button">
+                <span class="history__title"></span>
+                <span class="history__meta"></span>
+            </button>
+            <button class="history__delete" type="button" aria-label="Delete conversation">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg>
+            </button>
+        </li>
+    </template>
+
+    <script src="static/app.js"></script>
+</body>
+</html>

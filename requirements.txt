@@ -1,0 +1,32 @@
+# ==================================================
+# AI Knowledge Assistant - Python dependencies
+# Install with:
+#   pip install -r requirements.txt
+# ==================================================
+
+# --- Web server / API --------------------------------
+fastapi==0.141.1
+uvicorn==0.54.0
+python-multipart==0.0.32
+pydantic==2.13.5
+
+# --- Embeddings + LLM inference -----------------------
+torch==2.14.0
+transformers==5.17.0
+sentence-transformers==6.1.0
+accelerate==1.15.0
+
+# --- Vector store -------------------------------------
+qdrant-client==1.19.1
+
+# --- Document text extraction -------------------------
+pymupdf==1.28.2
+python-docx==1.2.0
+
+# --- Used by the standalone demo scripts --------------
+scikit-learn==1.9.1
+
+# --- Optional: physical CPU core count in config.py --
+# Falls back to os.cpu_count() if not installed, so
+# this one is safe to comment out.
+psutil==7.2.2
